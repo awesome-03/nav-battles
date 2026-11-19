@@ -151,9 +151,11 @@ execute unless entity @e[tag=nb_top] run tellraw @s {"text":"[Nav Battles]: Star
 # INVENTORY
 
 # To customize the slots:
-# Hotbar namings: hotbar.0 to hotbar.8
-# Inventory namings: inventory.0 to inventory.26, weapon.offhand,
-# Armor namings: armor.head, armor.chest, armor.legs, armor.feet
+# Hotbar slots: hotbar.0 to hotbar.8, and weapon.offhand
+# Inventory slots: inventory.0 to inventory.26
+# Armor slots: armor.head, armor.chest, armor.legs, armor.feet
+
+# replaceitem entity @s <Slot Name> <Item Name> <Item Count>
 
 execute as @s run clear @s
 replaceitem entity @s hotbar.0 minecraft:ender_eye 12
