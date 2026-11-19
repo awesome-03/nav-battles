@@ -1,0 +1,188 @@
+/* Layout */
+.rooms-page {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--normal-gap);
+}
+
+/* Rooms Sidebar */
+.room-list {
+  position: sticky;
+  top: calc(var(--header-height) + var(--normal-gap));
+  /* grows with the rooms until it fills the screen, then the rooms scroll */
+  min-height: 42rem;
+  max-height: calc(100dvh - var(--header-height) - 2 * var(--normal-gap));
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.room-list h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.room-cards {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 3px;
+  margin: -3px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.room-card {
+  display: flex;
+  align-items: center;
+  padding-right: 0.75rem;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.room-card:hover {
+  border-color: var(--border);
+  background-color: var(--surface-hover);
+}
+
+.room-card:has([aria-current="true"]) {
+  border-color: var(--primary);
+  background-color: var(--primary-tint);
+}
+
+/* :where() keeps this weaker than the copied and failed colors */
+:where(.room-card:has([aria-current="true"])) .copy {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--surface));
+  background-color: color-mix(in srgb, var(--primary) 6%, var(--surface));
+  color: var(--text);
+}
+
+/* Keeps the normal color under the check or cross */
+:where(.room-card:has([aria-current="true"])) .copy:is(.copied, .failed):hover {
+  background-color: color-mix(in srgb, var(--primary) 6%, var(--surface));
+}
+
+:where(.room-card:has([aria-current="true"])) .copy:hover:not(.copied, .failed) {
+  background-color: color-mix(in srgb, var(--primary) 25%, var(--surface));
+}
+
+.room-select {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Focus ring goes around the whole card, not inside it */
+.room-select:focus-visible {
+  outline: none;
+}
+
+.room-card:has(.room-select:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.room-card-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.room-card-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.room-card-players {
+  color: var(--text-dimmed);
+  font-size: 0.8rem;
+}
+
+.room-list-status {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.room-list-status:empty {
+  display: none;
+}
+
+.room-list-status.error {
+  color: var(--danger);
+}
+
+.room-list-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Import Modal */
+#import-choose-file {
+  margin-right: auto;
+}
+
+/* No Rooms */
+/* Stretch to the sidebar height so it's centered next to it */
+.no-rooms {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.no-rooms h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.no-rooms p {
+  max-width: 45ch;
+  color: var(--text-muted);
+}
+
+@media (max-width: 1100px) {
+  .rooms-page {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  /* The rooms go on top and stop sticking, with their own scroll */
+  .rooms-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .room-list {
+    position: static;
+    min-height: 0;
+    max-height: 60dvh;
+  }
+
+  .no-rooms {
+    padding-block: 3rem;
+  }
+}

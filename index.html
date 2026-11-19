@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nav Battles</title>
-  
+
   <!-- Theme set to user default -->
   <script>
     {
@@ -29,6 +29,7 @@
   <!-- Stylesheets -->
   <link rel="stylesheet" href="src/css/reset.css">
   <link rel="stylesheet" href="src/css/main.css">
+  <link rel="stylesheet" href="src/css/rooms.css">
 
   <!-- Scripts -->
   <script type="module" src="src/js/main.js"></script>
@@ -47,5 +48,66 @@
       <span class="icon icon-mode" aria-hidden="true"></span>
     </button>
   </header>
+
+  <main class="rooms-page">
+    <!-- Rooms sidebar -->
+    <section class="room-list bg-box" aria-labelledby="room-list-title">
+      <h2 id="room-list-title">Rooms</h2>
+      <ul id="room-cards" class="room-cards"></ul>
+      <p id="room-list-status" class="room-list-status" role="status"></p>
+      <div class="room-list-buttons">
+        <button id="import-rooms" class="button button-outline" type="button" aria-haspopup="dialog">
+          <span class="icon icon-upload" aria-hidden="true"></span>
+          Import
+        </button>
+        <button id="new-room" class="button button-primary" type="button"><span aria-hidden="true">+</span> New Room</button>
+      </div>
+    </section>
+
+    <!-- No rooms -->
+    <section id="no-rooms" class="no-rooms" aria-labelledby="no-rooms-title" hidden>
+      <h2 id="no-rooms-title">No saved rooms...</h2>
+      <p>Create or import a room to start playing. Click the button below to restore the default rooms</p>
+      <button id="restore-defaults" class="button button-primary" type="button">Restore Defaults</button>
+    </section>
+  </main>
+
+  <!-- Import modal -->
+  <dialog id="import-modal" class="modal" aria-labelledby="import-title">
+    <form id="import-form" class="modal-box">
+      <div class="modal-header">
+        <h2 id="import-title">Import Room</h2>
+        <button id="import-close" class="icon-button" type="button" aria-label="Close" title="Close">
+          <span class="icon icon-cross" aria-hidden="true"></span>
+        </button>
+      </div>
+      <label class="modal-message" for="import-text">Paste a room code, or select a saved txt file</label>
+      <textarea id="import-text" class="text-field" rows="5" placeholder="NB1-…" spellcheck="false" autofocus></textarea>
+      <p id="import-error" class="modal-error" role="alert"></p>
+      <div class="modal-buttons">
+        <button id="import-choose-file" class="button button-outline" type="button">
+          <span class="icon icon-upload" aria-hidden="true"></span>
+          Choose File
+        </button>
+        <input id="import-file" type="file" accept=".json,.txt,application/json,text/plain" hidden>
+        <button class="button button-primary" type="submit">Import</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="room-card">
+    <li class="room-card">
+      <button class="room-select" type="button">
+        <span class="room-card-title"></span>
+        <span class="room-card-description"></span>
+        <span class="room-card-players"></span>
+      </button>
+      <button class="copy icon-button" type="button" aria-label="Copy" title="Copy">
+        <span class="icon icon-copy" aria-hidden="true"></span>
+        <span class="icon icon-check" aria-hidden="true"></span>
+        <span class="icon icon-cross" aria-hidden="true"></span>
+      </button>
+    </li>
+  </template>
 </body>
 </html>
