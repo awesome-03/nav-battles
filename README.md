@@ -47,8 +47,9 @@ I commented out some things but possibly the most useful one is the inventory, w
 # replaceitem entity @s <Slot Name> <Item Name> <Item Count>
 
 execute as @s run clear @s
-replaceitem entity @s hotbar.0 minecraft:ender_eye 12
+replaceitem entity @s hotbar.0 minecraft:iron_pickaxe 1
 replaceitem entity @s hotbar.1 minecraft:soul_sand 64
+replaceitem entity @s hotbar.2 minecraft:ender_eye 12
 replaceitem entity @s weapon.offhand minecraft:bread 12
 
 # ==============================
