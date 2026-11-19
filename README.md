@@ -9,10 +9,11 @@ The tool locates the stronghold, puts the players in the starter staircase (faci
 The minecraft commands are in `nav_battles.mcfunction`, and the builder script is `build.py`
 
 ```bash
-python3 build.py                     # creates the one-line command into ranked.txt
-python3 build.py --copy              # + copies ranked.txt to the clipboard
-python3 build.py --datapack          # + puts it as a datapack in the most recent singleplayer world
-python3 build.py --datapack "PATH"   # + places the datapack in the provided world folder
+python3 build.py                                   # creates the one-line command into ranked.txt
+python3 build.py --copy                            # + copies ranked.txt to the clipboard
+python3 build.py --datapack "PATH"                 # + places the datapack in the provided world folder
+python3 build.py --datapack "PATH" --save-default  # + configures the default saves folder
+python3 build.py --datapack                        # + uses the configured saves folder
 ```
 
 The datapack defaults to search for `New World (X)` so if you use another language it won't work.
