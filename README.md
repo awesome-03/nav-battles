@@ -6,6 +6,16 @@ The tool locates the stronghold, puts the players in the starter staircase (faci
 
 ## How to use
 
+If you just want to use the tool without downloading the script:
+
+1. Copy the text in `ranked.txt`
+2. In a ranked private room: Options -> Miscellaneous
+3. Find the "Run Command on World Join" field and paste the commands in it.
+
+The default items are set to: Iron pickaxe, 64 soul sand, 12 eyes of ender, and 12 bread in offhand
+
+### The script
+
 The minecraft commands are in `nav_battles.mcfunction`, and the builder script is `build.py`
 
 ```bash

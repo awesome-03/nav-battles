@@ -1,5 +1,5 @@
 # Puts every player at the bottom of the starter staircase
-# Facing the 5way, with 12 eyes, 64 soul sand and 12 bread in offhand.
+# Facing the 5way, with an iron pickaxe, 64 soul sand, 12 eyes of ender and 12 bread in offhand.
 
 gamerule sendCommandFeedback false
 execute as @s run scoreboard objectives add nb dummy
@@ -158,8 +158,9 @@ execute unless entity @e[tag=nb_top] run tellraw @s {"text":"[Nav Battles]: Star
 # replaceitem entity @s <Slot Name> <Item Name> <Item Count>
 
 execute as @s run clear @s
-replaceitem entity @s hotbar.0 minecraft:ender_eye 12
+replaceitem entity @s hotbar.0 minecraft:iron_pickaxe 1
 replaceitem entity @s hotbar.1 minecraft:soul_sand 64
+replaceitem entity @s hotbar.2 minecraft:ender_eye 12
 replaceitem entity @s weapon.offhand minecraft:bread 12
 
 # ==============================
