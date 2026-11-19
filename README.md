@@ -16,6 +16,8 @@ The default items are set to: Iron pickaxe, 64 soul sand, 12 eyes of ender, and 
 
 ### The script
 
+The script can be downloaded from [releases](https://github.com/awesome-03/nav-battles/releases/latest). The release also includes a datapack folder in it, which you can manually copy into a world folder.
+
 The minecraft commands are in `nav_battles.mcfunction`, and the builder script is `build.py`
 
 ```bash
