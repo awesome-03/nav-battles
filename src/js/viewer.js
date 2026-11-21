@@ -33,8 +33,8 @@ function saveView(){
 }
 
 function playerList(){
-    const { room, defaultKit } = shown;
-    const roomKit = room.kit ?? defaultKit;
+    const { room } = shown;
+    const roomKit = room.kit ?? {};
     return [
         { index: -1, name: "Default", kit: roomKit, isDefault: true },
         ...room.players.map((player, index) => ({ index, name: player.name, kit: player.kit ?? roomKit, ownKit: player.kit !== null, roomKit })),
@@ -65,7 +65,7 @@ function buildBadges(player){
     }
     const { changes, moved } = kitChanges(player.kit, player.roomKit);
     if (changes.length === 0){
-        return moved ? [badge("Moved around", "changed")] : [];
+        return moved ? [badge("Changed Order", "changed")] : [];
     }
     if (changes.length > 3){
         return [summaryBadge(changes.length)];
@@ -134,13 +134,13 @@ function renderPlayers(){
     elements.forEach(fitBadges);
 }
 
-export function renderRoom(room, defaultKit){
+export function renderRoom(room){
     roomView.hidden = !room;
     if (!room){
         shown = null;
         return;
     }
-    shown = { room, defaultKit: defaultKit ?? {} };
+    shown = { room };
     // Not while someone is typing in them
     if (document.activeElement !== nameField){
         nameField.value = room.name;

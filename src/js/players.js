@@ -21,20 +21,19 @@ function nameError(room, name, player = null){
     return null;
 }
 
-export function setupPlayers(getRoom, mcfunctionKit, changed){
+export function setupPlayers(getRoom, changed){
     function playerKit(kit, roomKit){
         return sameKit(kit, roomKit) ? null : kit;
     }
 
     function openDefault(room){
-        const base = mcfunctionKit();
         openKit({
             room: room.name,
             name: null,
-            kit: room.kit ?? base,
+            kit: room.kit ?? {},
             note: "Default inventory for players who aren't configured",
             save(_, kit){
-                room.kit = sameKit(kit, base) ? null : kit;
+                room.kit = kit;
                 changed();
             },
             copyPlayer(_, kit){
@@ -50,7 +49,7 @@ export function setupPlayers(getRoom, mcfunctionKit, changed){
             return;
         }
         const player = room.players[index];
-        const roomKit = room.kit ?? mcfunctionKit();
+        const roomKit = room.kit ?? {};
         openKit({
             room: room.name,
             name: player.name,
@@ -80,7 +79,7 @@ export function setupPlayers(getRoom, mcfunctionKit, changed){
 
     function newPlayer(){
         const room = getRoom();
-        const roomKit = room.kit ?? mcfunctionKit();
+        const roomKit = room.kit ?? {};
         openKit({
             room: room.name,
             name: "",
@@ -106,16 +105,10 @@ export function setupPlayers(getRoom, mcfunctionKit, changed){
             done(players){
                 for (const player of players){
                     if (player.name === ""){
-                        room.kit = sameKit(player.kit, mcfunctionKit()) ? null : player.kit;
+                        room.kit = player.kit;
                         continue;
                     }
-                    const kit = playerKit(player.kit, room.kit ?? mcfunctionKit());
-                    const existing = room.players.find(other => other.name.toLowerCase() === player.name.toLowerCase());
-                    if (existing){
-                        existing.kit = kit;
-                    } else {
-                        room.players.push({ name: player.name, kit });
-                    }
+                    room.players.push({ name: player.name, kit: playerKit(player.kit, room.kit ?? {}) });
                 }
                 changed();
             },

@@ -221,7 +221,7 @@ function stackKey(item){
 
 export function stackedItems(kit){
     const totals = new Map();
-    for (const slot of SLOT_ORDER){
+    for (const slot of [...SLOT_ORDER.filter(slot => !slot.startsWith("armor.")), ...SLOT_ORDER.filter(slot => slot.startsWith("armor."))]){
         const item = kit[slot];
         if (item){
             const key = stackKey(item);

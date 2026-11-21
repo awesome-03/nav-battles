@@ -1,4 +1,4 @@
-import { COMMAND_LIMIT, buildCommand, commandParts, kitFromCommands, playerLines } from "./command.js";
+import { COMMAND_LIMIT, buildCommand, commandParts, roomFor } from "./command.js";
 import { copyFromButton } from "./copy.js";
 
 const section = document.querySelector("#command");
@@ -16,6 +16,8 @@ const commandText = document.querySelector("#command-text");
 const PLAYER_COLORS = 7;
 
 let shown = null;
+let drawn = null;
+let drawnWidth = 0;
 
 function number(n){
     return n.toLocaleString("en-US");
@@ -26,18 +28,31 @@ function size(lines){
     return lines.reduce((total, line) => total + line.length + 1, 0);
 }
 
-function pieces(parts, total){
+function pieces(parts, total, room, limit){
+    const own = new Map(room.players.filter(player => player.kit).map(player => [player.name, 0]));
+    let shared = 0;
+    for (const { line, names } of parts.players){
+        if (names.length === 1){
+            own.set(names[0], own.get(names[0]) + line.length + 1);
+        } else {
+            shared += line.length + 1;
+        }
+    }
+    const players = [...own].filter(([, chars]) => chars > 0);
     const list = [
         { label: "Setup", size: 0, color: "var(--text-dimmed)" },
         { label: "Default inventory", size: size(parts.defaultLines), color: "var(--series-1)" },
     ];
-    const named = parts.players.length > PLAYER_COLORS ? PLAYER_COLORS - 1 : PLAYER_COLORS;
-    parts.players.slice(0, named).forEach((player, i) => {
-        list.push({ label: player.name, size: size(player.lines), color: `var(--series-${i + 2})` });
+    const named = Math.min(limit, players.length > PLAYER_COLORS ? PLAYER_COLORS - 1 : PLAYER_COLORS);
+    players.slice(0, named).forEach(([name, chars], i) => {
+        list.push({ label: name, size: chars, color: `var(--series-${i + 2})` });
     });
-    const rest = parts.players.slice(named);
+    const rest = players.slice(named);
     if (rest.length > 0){
-        list.push({ label: `${rest.length} more players`, size: rest.reduce((sum, player) => sum + size(player.lines), 0), color: `var(--series-${PLAYER_COLORS + 1})` });
+        list.push({ label: `${rest.length} more players`, size: rest.reduce((sum, [, chars]) => sum + chars, 0), color: `var(--series-${PLAYER_COLORS + 1})` });
+    }
+    if (shared > 0){
+        list.push({ label: "Shared by players", size: shared, color: "var(--border)" });
     }
     // Setup is everything else, so the pieces add up to the whole command
     list[0].size = total - list.slice(1).reduce((sum, piece) => sum + piece.size, 0);
@@ -64,48 +79,60 @@ function buildLegendItem(piece){
     return item;
 }
 
+function drawPieces(){
+    const { parts, total, room } = drawn;
+    const free = COMMAND_LIMIT - total;
+    for (let limit = PLAYER_COLORS; limit >= 0; limit--){
+        const list = pieces(parts, total, room, limit);
+        const segments = list.map(buildSegment);
+        const items = list.map(buildLegendItem);
+        if (free > 0){
+            const left = { label: "Free", size: free, color: "var(--border-muted)" };
+            segments.push(buildSegment(left));
+            items.push(buildLegendItem(left));
+        } else {
+            const line = document.createElement("div");
+            line.className = "command-limit";
+            line.style.left = `${COMMAND_LIMIT / total * 100}%`;
+            line.title = `Ranked's limit: ${number(COMMAND_LIMIT)} characters`;
+            segments.push(line);
+        }
+        meter.replaceChildren(...segments);
+        legend.replaceChildren(...items);
+        if (new Set(items.map(item => item.offsetTop)).size <= 2){
+            break;
+        }
+    }
+    drawnWidth = legend.clientWidth;
+}
+
 export function renderLength(room, commands){
     section.hidden = !room || !commands;
     if (section.hidden){
         shown = null;
+        drawn = null;
         return;
     }
     shown = { room, commands };
     const parts = commandParts(commands, room);
     const command = buildCommand(commands, room);
     const free = COMMAND_LIMIT - command.length;
-    const list = pieces(parts, command.length);
 
     lengthValue.textContent = number(command.length);
     lengthValue.classList.toggle("over", free < 0);
     percentValue.textContent = `${(command.length / COMMAND_LIMIT * 100).toFixed(1)}%`;
     percentValue.classList.toggle("over", free < 0);
-    countValue.textContent = number(parts.before.length + parts.defaultLines.length + parts.after.length
-        + parts.players.reduce((sum, player) => sum + player.lines.length, 0));
+    countValue.textContent = number(parts.before.length + parts.defaultLines.length + parts.players.length + parts.after.length);
 
-    const each = size(playerLines({ name: "x".repeat(16), kit: room.kit ?? kitFromCommands(commands) }));
-    roomValue.textContent = free > 0 ? `~${number(Math.floor(free / each))}` : "0";
+    roomValue.textContent = free > 0 ? `~${number(roomFor(commands, room))}` : "0";
 
-    const segments = list.map(buildSegment);
-    const items = list.map(buildLegendItem);
-    if (free > 0){
-        const left = { label: "Free", size: free, color: "var(--border-muted)" };
-        segments.push(buildSegment(left));
-        items.push(buildLegendItem(left));
-    } else {
-        const limit = document.createElement("div");
-        limit.className = "command-limit";
-        limit.style.left = `${COMMAND_LIMIT / command.length * 100}%`;
-        limit.title = `Ranked's limit: ${number(COMMAND_LIMIT)} characters`;
-        segments.push(limit);
-    }
-    meter.replaceChildren(...segments);
-    legend.replaceChildren(...items);
+    drawn = { parts, total: command.length, room };
+    drawPieces();
 
     errorLine.textContent = free < 0 ? `${number(-free)} characters over the limit` : "";
     copyButton.disabled = free < 0;
     if (free < 0){
-        copyButton.title = "Too long for Ranked";
+        copyButton.title = "Code too long";
     } else {
         copyButton.removeAttribute("title");
     }
@@ -113,6 +140,11 @@ export function renderLength(room, commands){
 }
 
 export function setupLength(){
+    new ResizeObserver(() => {
+        if (drawn && legend.clientWidth !== drawnWidth){
+            drawPieces();
+        }
+    }).observe(legend);
     showButton.addEventListener("click", () => {
         const open = showButton.getAttribute("aria-expanded") !== "true";
         showButton.setAttribute("aria-expanded", open);

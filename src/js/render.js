@@ -35,7 +35,7 @@ function buildCard(room, isCurrent, actions){
     const copyButton = card.querySelector(".copy");
     if (actions.getCommand(room)?.length > COMMAND_LIMIT){
         copyButton.disabled = true;
-        copyButton.title = "Too long for Ranked";
+        copyButton.title = "Code too long";
     }
     copyButton.addEventListener("click", () => {
         const command = actions.getCommand(room);

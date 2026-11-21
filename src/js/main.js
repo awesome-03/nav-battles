@@ -2,7 +2,7 @@ import { setupThemeToggle } from "./theme.js";
 import { setupNav } from "./nav.js";
 import { loadRooms, saveRooms } from "./storage.js";
 import { createRoom, startingRooms, readRooms, encodeRoom } from "./rooms.js";
-import { loadCommands, buildCommand, kitFromCommands } from "./command.js";
+import { loadCommands, buildCommand } from "./command.js";
 import { renderRooms, focusRoom, setStatus } from "./render.js";
 import { setupImport, openImport, ROOM_IMPORT } from "./import.js";
 import { renderRoom, setupViewer } from "./viewer.js";
@@ -34,13 +34,8 @@ function update(){
     }
     saveRooms(state);
     renderRooms(state, actions);
-    renderRoom(currentRoom(), mcfunctionKit());
+    renderRoom(currentRoom());
     renderLength(currentRoom(), commands);
-}
-
-// The kit in the mcfunction, for rooms without their own
-function mcfunctionKit(){
-    return commands ? kitFromCommands(commands) : {};
 }
 
 function currentRoom(){
@@ -99,7 +94,7 @@ setupViewer({
         currentRoom().description = description;
         update();
     },
-    ...setupPlayers(currentRoom, mcfunctionKit, update),
+    ...setupPlayers(currentRoom, update),
 });
 update();
 
