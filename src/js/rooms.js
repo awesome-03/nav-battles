@@ -92,11 +92,17 @@ export async function readRooms(text, rooms){
     if (text === ""){
         throw new Error("Nothing to import.");
     }
-    const data = await readData(text);
-    if (data?.type !== "room"){
+    const added = [];
+    for (const code of findCodes(text)){
+        const data = await readData(code);
+        if (data?.type === "room"){
+            added.push(cleanRoom(data, [...rooms, ...added]));
+        }
+    }
+    if (added.length === 0){
         throw new Error("Invalid room code or file.");
     }
-    return [cleanRoom(data, rooms)];
+    return added;
 }
 
 export async function readPlayers(text){
