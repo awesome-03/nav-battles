@@ -1,4 +1,5 @@
 import { copyFromButton } from "./copy.js";
+import { COMMAND_LIMIT } from "./command.js";
 
 const roomCards = document.querySelector("#room-cards");
 const cardTemplate = document.querySelector("#room-card");
@@ -32,6 +33,10 @@ function buildCard(room, isCurrent, actions){
     card.querySelector(".room-card-players").textContent = playerCount(room);
 
     const copyButton = card.querySelector(".copy");
+    if (actions.getCommand(room)?.length > COMMAND_LIMIT){
+        copyButton.disabled = true;
+        copyButton.title = "Too long for Ranked";
+    }
     copyButton.addEventListener("click", () => {
         const command = actions.getCommand(room);
         if (command === null){

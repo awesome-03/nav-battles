@@ -1,5 +1,6 @@
 export const ICON_SIZE = 64;
 export const ICON_COLUMNS = 32;
+export const ICON_GAP = 8;
 export const ITEM_ICONS = {
     stone: 0,
     granite: 1,

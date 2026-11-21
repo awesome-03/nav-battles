@@ -67,7 +67,7 @@
   background-color: color-mix(in srgb, var(--primary) 6%, var(--surface));
 }
 
-:where(.room-card:has([aria-current="true"])) .copy:hover:not(.copied, .failed) {
+:where(.room-card:has([aria-current="true"])) .copy:hover:not(.copied, .failed, :disabled) {
   background-color: color-mix(in srgb, var(--primary) 25%, var(--surface));
 }
 
@@ -379,6 +379,144 @@
   gap: 0.5rem;
 }
 
+/* Command */
+.command {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.command-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+}
+
+.command-head h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.command-head p,
+.command-stats dt,
+.command-unit {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.command-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+}
+
+.command-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#command-length.over,
+#command-percent.over {
+  color: var(--red);
+}
+
+.command-meter {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  height: 0.875rem;
+}
+
+.command-meter > span {
+  flex-basis: 0;
+  min-width: 2px;
+}
+
+.command-meter > span:first-of-type {
+  border-radius: 4px 0 0 4px;
+}
+
+.command-meter > span:last-of-type {
+  border-radius: 0 4px 4px 0;
+}
+
+.command-limit {
+  position: absolute;
+  inset-block: -0.25rem;
+  width: 2px;
+  background-color: var(--text);
+}
+
+.command-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.command-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.command-swatch {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+}
+
+.command-legend-value {
+  color: var(--text);
+}
+
+.command-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.command-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-self: start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.command-toggle:hover {
+  color: var(--text);
+}
+
+.command-toggle .icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  transform: rotate(90deg);
+  transition: transform 0.15s;
+}
+
+.command-toggle[aria-expanded="true"] .icon {
+  transform: rotate(180deg);
+}
+
+.command-text {
+  grid-column: 1 / -1;
+  height: 8rem;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.75rem;
+}
+
 /* Inventory Slots */
 .inventory {
   --slot: 1.75rem;
@@ -403,7 +541,7 @@
   position: absolute;
   inset: 1px;
   background-image: url("../img/items.webp");
-  background-size: 3200% auto;
+  background-size: 4000% auto;
   background-position: var(--icon-position);
 }
 
@@ -415,7 +553,7 @@
   background-image: url("../img/glint.png");
   background-size: 2rem 2rem;
   mask-image: url("../img/items.webp");
-  mask-size: 3200% auto;
+  mask-size: 4000% auto;
   mask-position: var(--icon-position);
   mix-blend-mode: screen;
   mix-blend-mode: plus-lighter;
@@ -425,12 +563,12 @@
 
 .item.potion {
   background-image: url("../img/potions.webp");
-  background-size: 4200% auto;
+  background-size: 5250% auto;
 }
 
 .item.potion.glint::after {
   mask-image: url("../img/potions.webp");
-  mask-size: 4200% auto;
+  mask-size: 5250% auto;
   opacity: 0.25;
 }
 

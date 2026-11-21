@@ -25,20 +25,31 @@ export function kitFromCommands(commands){
     return kit;
 }
 
+export const COMMAND_LIMIT = 32500;
+
 function kitLines(kit, prefix = ""){
     return Object.entries(kit).map(([slot, item]) => `${prefix}${KIT_LINE}${slot} minecraft:${item.id}${item.nbt ?? ""} ${item.count}`);
 }
 
-// One line for Run Command on World Join, split with ";"
-export function buildCommand(commands, room){
+export function playerLines(player){
+    const onlyThem = `execute if entity @s[name=${player.name}] run `;
+    return [`${onlyThem}clear @s`, ...kitLines(player.kit, onlyThem)];
+}
+
+export function commandParts(commands, room){
     const isKitLine = line => line.startsWith(KIT_LINE);
     const start = commands.findIndex(isKitLine);
-    const defaultLines = room.kit ? kitLines(room.kit) : commands.filter(isKitLine);
-    const playerLines = room.players.filter(player => player.kit).flatMap(player => {
-        const onlyThem = `execute if entity @s[name=${player.name}] run `;
-        return [`${onlyThem}clear @s`, ...kitLines(player.kit, onlyThem)];
-    });
     const kept = commands.filter(line => !isKitLine(line));
-    kept.splice(start === -1 ? kept.length : start, 0, ...defaultLines, ...playerLines);
-    return kept.join(";");
+    const at = start === -1 ? kept.length : start;
+    return {
+        before: kept.slice(0, at),
+        defaultLines: room.kit ? kitLines(room.kit) : commands.filter(isKitLine),
+        players: room.players.filter(player => player.kit).map(player => ({ name: player.name, lines: playerLines(player) })),
+        after: kept.slice(at),
+    };
+}
+
+export function buildCommand(commands, room){
+    const { before, defaultLines, players, after } = commandParts(commands, room);
+    return [...before, ...defaultLines, ...players.flatMap(player => player.lines), ...after].join(";");
 }

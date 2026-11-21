@@ -1,4 +1,4 @@
-import { ITEM_ICONS, ICON_COLUMNS, ITEM_NAMES, STACK_SIZES, GLINT_ITEMS, DARK_ITEMS } from "./items.js";
+import { ITEM_ICONS, ICON_COLUMNS, ICON_GAP, ICON_SIZE, ITEM_NAMES, STACK_SIZES, GLINT_ITEMS, DARK_ITEMS } from "./items.js";
 
 const ICON_ROWS = Math.ceil(Object.keys(ITEM_ICONS).length / ICON_COLUMNS);
 
@@ -255,18 +255,22 @@ export function buildIcon(item){
     const potion = potionOf(item);
     if (potion){
         icon.classList.add("potion");
-        const x = potion.column / (POTIONS.length - 1) * 100;
-        const y = POTION_ITEMS[item.id].row / (Object.keys(POTION_ITEMS).length - 1) * 100;
-        icon.style.setProperty("--icon-position", `${x}% ${y}%`);
+        icon.style.setProperty("--icon-position", iconPosition(potion.column, POTION_ITEMS[item.id].row, POTIONS.length, Object.keys(POTION_ITEMS).length));
         return icon;
     }
     const index = ITEM_ICONS[item.id];
     if (index !== undefined){
-        const x = (index % ICON_COLUMNS) / (ICON_COLUMNS - 1) * 100;
-        const y = Math.floor(index / ICON_COLUMNS) / (ICON_ROWS - 1) * 100;
-        icon.style.setProperty("--icon-position", `${x}% ${y}%`);
+        icon.style.setProperty("--icon-position", iconPosition(index % ICON_COLUMNS, Math.floor(index / ICON_COLUMNS), ICON_COLUMNS, ICON_ROWS));
     }
     return icon;
+}
+
+// The icons have a gap around them to fix visual artifacts
+function iconPosition(column, row, columns, rows){
+    const pitch = ICON_SIZE + 2 * ICON_GAP;
+    const x = (column * pitch + ICON_GAP) / (columns * pitch - ICON_SIZE) * 100;
+    const y = (row * pitch + ICON_GAP) / (rows * pitch - ICON_SIZE) * 100;
+    return `${x}% ${y}%`;
 }
 
 // Puts an item's icon and count into a slot

@@ -113,11 +113,51 @@
           <button id="new-player" class="button button-primary" type="button" aria-haspopup="dialog"><span aria-hidden="true">+</span> New Player</button>
         </div>
       </section>
+
+      <!-- Command length -->
+      <section id="command" class="command bg-box" aria-labelledby="command-title" hidden>
+        <div class="command-head">
+          <h3 id="command-title">Command</h3>
+          <p>for ranked private rooms</p>
+        </div>
+        <dl class="command-stats">
+          <div>
+            <dt>Characters</dt>
+            <dd class="command-value"><span id="command-length"></span> <span class="command-unit">/32,500</span></dd>
+          </div>
+          <div>
+            <dt>Percent used</dt>
+            <dd id="command-percent" class="command-value"></dd>
+          </div>
+          <div>
+            <dt>Commands</dt>
+            <dd id="command-count" class="command-value"></dd>
+          </div>
+          <div>
+            <dt>Room for</dt>
+            <dd class="command-value"><span id="command-room"></span> <span class="command-unit">more players</span></dd>
+          </div>
+        </dl>
+        <div id="command-meter" class="command-meter" aria-hidden="true"></div>
+        <ul id="command-legend" class="command-legend"></ul>
+        <p id="command-error" class="modal-error" role="alert"></p>
+        <div class="command-foot">
+          <button id="show-command" class="command-toggle" type="button" aria-expanded="false" aria-controls="command-text">
+            <span class="icon icon-chevron" aria-hidden="true"></span>
+            Show Command
+          </button>
+          <button id="copy-command" class="button button-primary copy-button" type="button" aria-label="Copy Command">
+            <span class="copy-label"><span class="icon icon-copy" aria-hidden="true"></span>Copy Command</span>
+            <span class="icon icon-check" aria-hidden="true"></span>
+            <span class="icon icon-cross" aria-hidden="true"></span>
+          </button>
+          <textarea id="command-text" class="text-field command-text" aria-label="Command" readonly spellcheck="false" hidden></textarea>
+        </div>
+      </section>
     </section>
   </main>
 
   <!-- Import modal -->
-  <!-- Ctrl+V while it's open imports what's on the clipboard too -->
   <dialog id="import-modal" class="modal" aria-labelledby="import-title" aria-describedby="import-message">
     <div class="modal-box">
       <div class="modal-header">

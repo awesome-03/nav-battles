@@ -10,6 +10,7 @@ import { askConfirm } from "./confirm.js";
 import { setupExport, openExport } from "./export.js";
 import { setupInventory } from "./inventory.js";
 import { setupPlayers } from "./players.js";
+import { renderLength, setupLength } from "./length.js";
 
 const state = loadRooms() ?? { rooms: startingRooms(), currentId: null };
 let commands = null;
@@ -34,6 +35,7 @@ function update(){
     saveRooms(state);
     renderRooms(state, actions);
     renderRoom(currentRoom(), mcfunctionKit());
+    renderLength(currentRoom(), commands);
 }
 
 // The kit in the mcfunction, for rooms without their own
@@ -87,6 +89,7 @@ setupNav();
 setupImport();
 setupExport();
 setupInventory();
+setupLength();
 setupViewer({
     renameRoom(name){
         currentRoom().name = name;

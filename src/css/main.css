@@ -22,6 +22,16 @@
   --slot-hover: hsl(0 0% 100% / 0.06);
   --card-hover: hsl(0 0% 100% / 0.025);
 
+  /* Command bar colors*/
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+
   --normal-gap: 1rem;
   --content-width: 1400px;
   --header-height: calc(4rem + 1px);
@@ -50,6 +60,14 @@
   --slot-bg: hsl(0 0% 0% / 0.06);
   --slot-hover: hsl(0 0% 0% / 0.1);
   --card-hover: hsl(0 0% 0% / 0.025);
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #6250d6;
+  --series-8: #e34948;
 
   color-scheme: light;
 }
@@ -107,7 +125,7 @@ main {
   transition: color 0.15s, background-color 0.15s, border-color 0.15s;
 }
 
-.button:hover {
+.button:hover:not(:disabled) {
   background-color: var(--surface-hover);
 }
 
@@ -118,7 +136,7 @@ main {
   font-weight: 600;
 }
 
-.button-primary:hover {
+.button-primary:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--primary) 85%, var(--text));
 }
 
@@ -132,7 +150,14 @@ main {
   color: var(--red);
 }
 
-.button-danger:hover {
+/* Buttons that can't be used right now, like copying a command that's too long */
+.button:disabled,
+.icon-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.button-danger:hover:not(:disabled) {
   background-color: var(--danger-hover);
 }
 
@@ -424,7 +449,7 @@ main {
   transition: color 0.15s, background-color 0.15s, border-color 0.15s;
 }
 
-.icon-button:hover {
+.icon-button:hover:not(:disabled) {
   color: var(--text);
   background-color: var(--surface-hover);
 }
