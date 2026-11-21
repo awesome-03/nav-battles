@@ -57,7 +57,7 @@
       <p id="room-list-status" class="room-list-status" role="status"></p>
       <div class="room-list-buttons">
         <button id="import-rooms" class="button button-outline" type="button" aria-haspopup="dialog">
-          <span class="icon icon-upload" aria-hidden="true"></span>
+          <span class="icon icon-download" aria-hidden="true"></span>
           Import
         </button>
         <button id="new-room" class="button button-primary" type="button"><span aria-hidden="true">+</span> New Room</button>
@@ -70,30 +70,210 @@
       <p>Create or import a room to start playing. Click the button below to restore the default rooms</p>
       <button id="restore-defaults" class="button button-primary" type="button">Restore Defaults</button>
     </section>
+
+    <!-- Room viewer -->
+    <section id="room-view" class="room-view" aria-labelledby="room-title" hidden>
+      <div class="room-head">
+        <div class="room-fields">
+          <h2 id="room-title" class="room-title">
+            <input id="room-name" class="edit-field" type="text" aria-label="Room name" autocomplete="off" maxlength="60">
+          </h2>
+          <input id="room-description" class="edit-field room-description" type="text" aria-label="Room description" placeholder="Add a description" autocomplete="off" maxlength="200">
+        </div>
+        <div class="room-actions">
+          <button id="export-room" class="button" type="button" aria-haspopup="dialog">
+            <span class="icon icon-upload" aria-hidden="true"></span>
+            Export
+          </button>
+          <button id="delete-room" class="button button-danger" type="button" aria-haspopup="dialog">
+            <span class="icon icon-trash" aria-hidden="true"></span>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <section class="players bg-box" aria-labelledby="players-title">
+        <div class="players-head">
+          <h3 id="players-title">Players</h3>
+          <div class="view-buttons" role="group" aria-label="View">
+            <button id="list-view" class="icon-button" type="button" aria-pressed="false" aria-label="List view" title="List view">
+              <span class="icon icon-list" aria-hidden="true"></span>
+            </button>
+            <button id="gallery-view" class="icon-button" type="button" aria-pressed="true" aria-label="Gallery view" title="Gallery view">
+              <span class="icon icon-gallery" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+        <ul id="player-cards" class="player-cards"></ul>
+        <div class="players-buttons">
+          <button id="import-players" class="button button-outline" type="button" aria-haspopup="dialog">
+            <span class="icon icon-download" aria-hidden="true"></span>
+            Import
+          </button>
+          <button id="new-player" class="button button-primary" type="button" aria-haspopup="dialog"><span aria-hidden="true">+</span> New Player</button>
+        </div>
+      </section>
+    </section>
   </main>
 
   <!-- Import modal -->
-  <dialog id="import-modal" class="modal" aria-labelledby="import-title">
-    <form id="import-form" class="modal-box">
+  <!-- Ctrl+V while it's open imports what's on the clipboard too -->
+  <dialog id="import-modal" class="modal" aria-labelledby="import-title" aria-describedby="import-message">
+    <div class="modal-box">
       <div class="modal-header">
         <h2 id="import-title">Import Room</h2>
         <button id="import-close" class="icon-button" type="button" aria-label="Close" title="Close">
           <span class="icon icon-cross" aria-hidden="true"></span>
         </button>
       </div>
-      <label class="modal-message" for="import-text">Paste a room code, or select a saved txt file</label>
-      <textarea id="import-text" class="text-field" rows="5" placeholder="NB1-…" spellcheck="false" autofocus></textarea>
+      <p id="import-message" class="modal-message">Paste a room code, or select a saved txt file</p>
       <p id="import-error" class="modal-error" role="alert"></p>
       <div class="modal-buttons">
         <button id="import-choose-file" class="button button-outline" type="button">
           <span class="icon icon-upload" aria-hidden="true"></span>
-          Choose File
+          Upload File
         </button>
         <input id="import-file" type="file" accept=".json,.txt,application/json,text/plain" hidden>
-        <button class="button button-primary" type="submit">Import</button>
+        <button id="import-paste" class="button button-primary" type="button" autofocus>
+          <span class="icon icon-paste" aria-hidden="true"></span>
+          Paste from Clipboard
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Export modal -->
+  <dialog id="export-modal" class="modal" aria-labelledby="export-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="export-title"></h2>
+        <button id="export-close" class="icon-button" type="button" aria-label="Close" title="Close">
+          <span class="icon icon-cross" aria-hidden="true"></span>
+        </button>
+      </div>
+      <p id="export-message" class="modal-message"></p>
+      <div class="modal-buttons">
+        <button id="export-download" class="button button-outline download-button" type="button">
+          <span class="icon icon-download" aria-hidden="true"></span>
+          Download File
+        </button>
+        <!-- The label slides up and a check (or a cross) slides in under it, like aa-progress-tracker's Save -->
+        <button id="export-copy" class="button button-primary copy-button" type="button" aria-label="Copy Code">
+          <span class="copy-label"><span class="icon icon-copy" aria-hidden="true"></span>Copy Code</span>
+          <span class="icon icon-check" aria-hidden="true"></span>
+          <span class="icon icon-cross" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Inventory modal -->
+  <dialog id="kit-modal" class="modal kit-modal" aria-labelledby="kit-title" tabindex="-1">
+    <form id="kit-form" class="modal-box">
+      <div class="modal-header">
+        <div class="kit-heading">
+          <p id="kit-room" class="kit-room"></p>
+          <h2 id="kit-title">
+            <span id="kit-default">Default</span>
+            <input id="kit-name" class="edit-field" type="text" aria-label="Username" placeholder="Username..." autocomplete="off" spellcheck="false" maxlength="16">
+          </h2>
+        </div>
+        <button id="kit-close" class="icon-button" type="button" aria-label="Close" title="Close">
+          <span class="icon icon-cross" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div id="kit-grid" class="kit-grid"></div>
+      <p id="kit-error" class="modal-error" role="alert"></p>
+      <div class="modal-buttons">
+        <div class="kit-tools">
+          <!-- While dragging an item, this is where it goes to be deleted -->
+          <button id="kit-delete" class="button button-danger" type="button" aria-haspopup="dialog" title="Delete player">
+            <span class="icon icon-trash" aria-hidden="true"></span>
+            Delete
+          </button>
+          <button id="kit-reset" class="button button-outline" type="button" title="Go back to default kit">
+            <span class="icon icon-reset" aria-hidden="true"></span>
+            Reset
+          </button>
+        </div>
+        <!-- The Default has a note here instead of the buttons -->
+        <p id="kit-note" class="kit-note"></p>
+        <div class="kit-save">
+          <button id="kit-copy" class="copy icon-button" type="button" aria-label="Copy player code" title="Copy player code">
+            <span class="icon icon-copy" aria-hidden="true"></span>
+            <span class="icon icon-check" aria-hidden="true"></span>
+            <span class="icon icon-cross" aria-hidden="true"></span>
+          </button>
+          <button class="button button-primary" type="submit">Save</button>
+        </div>
       </div>
     </form>
   </dialog>
+
+  <!-- Item picker modal -->
+  <dialog id="picker-modal" class="modal picker-modal" aria-labelledby="picker-title">
+    <form id="picker-form" class="modal-box" novalidate>
+      <div class="modal-header">
+        <h2 id="picker-title"></h2>
+        <button id="picker-close" class="icon-button" type="button" aria-label="Close" title="Close">
+          <span class="icon icon-cross" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="picker-fields">
+        <input id="picker-search" class="text-field" type="search" aria-label="Search items" placeholder="Search items" autocomplete="off" spellcheck="false" autofocus>
+        <div class="picker-count">
+          <label for="picker-count">Count</label>
+          <div class="stepper">
+            <input id="picker-count" class="text-field" type="number" min="1" max="64" value="1">
+            <div class="stepper-buttons">
+              <button id="count-up" type="button" tabindex="-1" aria-label="One more">
+                <span class="icon icon-chevron" aria-hidden="true"></span>
+              </button>
+              <button id="count-down" type="button" tabindex="-1" aria-label="One less">
+                <span class="icon icon-chevron" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Like the creative menu, the tab's name sits above the items, so the scrollbar only runs next to the items -->
+      <div class="picker-list">
+        <p id="picker-tab" class="picker-group-name picker-tab" aria-hidden="true"></p>
+        <div id="picker-items" class="picker-items" role="listbox" aria-label="Items"></div>
+      </div>
+      <p id="picker-error" class="modal-error" role="alert"></p>
+      <div class="modal-buttons">
+        <button id="picker-empty" class="icon-button icon-button-danger" type="button" aria-label="Empty slot" title="Empty slot">
+          <span class="icon icon-trash" aria-hidden="true"></span>
+        </button>
+        <!-- The NBT button shows and hides the NBT box next to it; the item only gets NBT while it's showing -->
+        <button id="picker-nbt-toggle" class="button button-outline" type="button" aria-pressed="false" title="Give NBT to item">NBT</button>
+        <input id="picker-nbt" class="text-field picker-nbt" type="text" aria-label="NBT" autocomplete="off" spellcheck="false">
+        <button class="button button-primary" type="submit">Done</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="player-card">
+    <li class="player-card">
+      <button class="player-open" type="button" aria-haspopup="dialog">
+        <span class="player-head">
+          <span class="player-name"></span>
+          <span class="player-badges"></span>
+        </span>
+      </button>
+    </li>
+  </template>
+
+  <template id="player-row">
+    <li class="player-row">
+      <button class="player-open" type="button" aria-haspopup="dialog">
+        <span class="player-name"></span>
+        <span class="player-items"></span>
+        <span class="player-badges"></span>
+      </button>
+    </li>
+  </template>
 
   <template id="room-card">
     <li class="room-card">

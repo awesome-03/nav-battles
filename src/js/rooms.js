@@ -1,7 +1,9 @@
 import { STARTING_ROOMS } from "./templates.js";
+import { nbtProblem } from "./kit.js";
+import { encodeCode, findCodes, readCode } from "./code.js";
 
 // A room: { id, name, description, kit, players: [{ name, kit }] }
-// A kit: { slot: { id, count } }, or null to keep the mcfunction's own kit
+// A kit: { slot: { id, count, nbt? } }, or null to keep the mcfunction's own kit
 
 function newId(){
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -30,9 +32,15 @@ export function startingRooms(existing = []){
     return rooms;
 }
 
+// Proper usernames
+const PLAYER_NAME = /^[A-Za-z0-9_]{1,16}$/;
+
+export function isPlayerName(name){
+    return PLAYER_NAME.test(name);
+}
+
 const SLOT = /^(hotbar\.[0-8]|inventory\.(1?[0-9]|2[0-6])|armor\.(head|chest|legs|feet)|weapon\.offhand)$/;
 
-// Only plain item ids and counts get through, since a kit goes straight into the command
 function cleanKit(raw){
     if (!raw || typeof raw !== "object"){
         return null;
@@ -42,7 +50,8 @@ function cleanKit(raw){
         const count = item?.count ?? 1;
         if (SLOT.test(slot) && typeof item?.id === "string" && /^[a-z0-9_]+$/.test(item.id)
             && Number.isInteger(count) && count >= 1 && count <= 64){
-            kit[slot] = { id: item.id, count };
+            const nbt = typeof item.nbt === "string" && item.nbt !== "" && nbtProblem(item.nbt) === null ? item.nbt : null;
+            kit[slot] = nbt ? { id: item.id, count, nbt } : { id: item.id, count };
         }
     }
     return kit;
@@ -60,49 +69,49 @@ function cleanRoom(raw, rooms){
         description: typeof raw.description === "string" ? raw.description : "",
         kit: cleanKit(raw.kit),
         players: players
-            .filter(player => player && typeof player.name === "string")
+            .filter(player => isPlayerName(player?.name))
             .map(player => ({ name: player.name, kit: cleanKit(player.kit) })),
     };
 }
 
-// Codes: "NB1-" + plain base64 of the deflated JSON
-async function decodeCode(code){
-    const bytes = Uint8Array.from(atob(code.slice(4)), char => char.charCodeAt(0));
-    if (code.startsWith("NB0-")){
-        return new TextDecoder().decode(bytes);
-    }
-    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
-    return new Response(stream).text();
+export function encodeRoom(room){
+    return encodeCode({ type: "room", name: room.name, description: room.description, kit: room.kit ?? null, players: room.players });
 }
 
-// Takes a room code or a room file's text
-// { "nb": 1, "type": "room", ... } for one room, { "nb": 1, "type": "rooms", "rooms": [...] } for a backup
+export function encodePlayer(player){
+    return encodeCode({ type: "player", name: player.name, kit: player.kit });
+}
+
+async function readData(text){
+    const data = await readCode(text);
+    return data?.nb === 1 ? data : null;
+}
+
 export async function readRooms(text, rooms){
     text = text.trim();
     if (text === ""){
-        throw new Error("Paste a room code, or choose a file first.");
+        throw new Error("Nothing to import.");
     }
-    let data;
-    try {
-        data = JSON.parse(/^NB[01]-/.test(text) ? await decodeCode(text) : text);
-    } catch {
-        // broken base64, compression or JSON
-        data = null;
-    }
-    const list = data?.type === "rooms" ? data.rooms : data?.type === "room" ? [data] : null;
-    if (data?.nb !== 1 || !Array.isArray(list)){
+    const data = await readData(text);
+    if (data?.type !== "room"){
         throw new Error("Invalid room code or file.");
     }
+    return [cleanRoom(data, rooms)];
+}
 
-    const added = [];
-    for (const raw of list){
-        const room = cleanRoom(raw, [...rooms, ...added]);
-        if (room){
-            added.push(room);
+export async function readPlayers(text){
+    if (text.trim() === ""){
+        throw new Error("Nothing to import.");
+    }
+    const players = [];
+    for (const code of findCodes(text)){
+        const data = await readData(code);
+        if (data?.type === "player" && (data.name === "" || isPlayerName(data.name))){
+            players.push({ name: data.name, kit: cleanKit(data.kit) ?? {} });
         }
     }
-    if (added.length === 0){
-        throw new Error("There are no rooms in that.");
+    if (players.length === 0){
+        throw new Error("Invalid player code or file.");
     }
-    return added;
+    return players;
 }

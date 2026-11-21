@@ -35,7 +35,7 @@ function buildCard(room, isCurrent, actions){
     copyButton.addEventListener("click", () => {
         const command = actions.getCommand(room);
         if (command === null){
-            setStatus("The commands haven't loaded, nothing to copy yet.", true);
+            setStatus("Nothing to copy yet.", true);
             return;
         }
         copyFromButton(copyButton, command);

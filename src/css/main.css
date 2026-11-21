@@ -15,7 +15,12 @@
   --green: hsl(114 65% 42%);
   --red: hsl(0 65% 48%);
   --danger: hsl(9 26% 64%);
+  --yellow: hsl(48 80% 58%);
+  --danger-hover: color-mix(in srgb, var(--red) 30%, transparent);
   --backdrop: hsl(0 0% 0% / 0.75);
+  --slot-bg: hsl(0 0% 0% / 0.3);
+  --slot-hover: hsl(0 0% 100% / 0.06);
+  --card-hover: hsl(0 0% 100% / 0.025);
 
   --normal-gap: 1rem;
   --content-width: 1400px;
@@ -39,7 +44,12 @@
   --green: hsl(122 60% 32%);
   --red: hsl(0 70% 45%);
   --danger: hsl(4 60% 42%);
+  --yellow: hsl(44 90% 36%);
+  --danger-hover: hsl(0 90% 93%);
   --backdrop: hsl(0 0% 0% / 0.4);
+  --slot-bg: hsl(0 0% 0% / 0.06);
+  --slot-hover: hsl(0 0% 0% / 0.1);
+  --card-hover: hsl(0 0% 0% / 0.025);
 
   color-scheme: light;
 }
@@ -116,9 +126,14 @@ main {
   background-color: transparent;
 }
 
-.button .icon {
-  width: 1rem;
-  height: 1rem;
+.button-danger {
+  border-color: var(--red);
+  background-color: transparent;
+  color: var(--red);
+}
+
+.button-danger:hover {
+  background-color: var(--danger-hover);
 }
 
 /* Fields */
@@ -134,6 +149,36 @@ main {
 }
 
 .text-field::placeholder {
+  color: var(--text-dimmed);
+}
+
+/* Text you can click to edit */
+.edit-field {
+  width: calc(100% + 1rem);
+  margin-left: -0.5rem;
+  padding: 0 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-overflow: ellipsis;
+  transition: border-color 0.15s;
+}
+
+.edit-field:hover {
+  border-color: var(--border);
+}
+
+.edit-field:focus {
+  border-color: var(--primary);
+}
+
+.edit-field:focus-visible {
+  outline: none;
+}
+
+.edit-field::placeholder {
   color: var(--text-dimmed);
 }
 
@@ -209,6 +254,99 @@ main {
   from { opacity: 0; transform: scale(0.95); }
 }
 
+.copy-button {
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.copy-button > * {
+  grid-area: 1 / 1;
+  transition: transform 0.3s cubic-bezier(0.3, 0.75, 0.4, 1.12);
+  will-change: transform;
+}
+
+.copy-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.copy-button > .icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  transform: translateY(2.25rem);
+  clip-path: inset(0 75% 0 0);
+  transition: transform 0.3s cubic-bezier(0.3, 0.75, 0.4, 1.12), clip-path 0s 0.3s;
+}
+
+.copy-button.copied > .icon-check,
+.copy-button.failed > .icon-cross {
+  transform: none;
+  clip-path: inset(0);
+  transition: transform 0.3s cubic-bezier(0.3, 0.75, 0.4, 1.12), clip-path 0.18s ease-out 0.06s;
+}
+
+.copy-button.copied .copy-label,
+.copy-button.failed .copy-label {
+  transform: translateY(-2.25rem);
+}
+
+/* Download: the arrow drops into the tray */
+.download-button.downloaded .icon {
+  animation: drop 0.5s ease;
+}
+
+@keyframes drop {
+  40% { transform: translateY(3px); }
+}
+
+.confirm-dialog {
+  width: fit-content;
+  min-width: min(100% - 2rem, 20rem);
+  max-width: min(100% - 2rem, 24rem);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background-color: var(--surface);
+  color: var(--text);
+  animation: scale-up 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.confirm-dialog::backdrop {
+  background-color: hsl(0 0% 0% / 0.4);
+}
+
+.confirm-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.confirm-note {
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.confirm-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.confirm-danger {
+  border-color: var(--red);
+  background-color: var(--red);
+  color: hsl(0 0% 100%);
+}
+
+.confirm-danger:hover {
+  border-color: color-mix(in srgb, var(--red) 80%, var(--text));
+  background-color: color-mix(in srgb, var(--red) 80%, var(--text));
+}
+
 /* Icons */
 .icon {
   display: block;
@@ -243,6 +381,34 @@ main {
   mask-image: url("../img/upload.png");
 }
 
+.icon-download {
+  mask-image: url("../img/download.png");
+}
+
+.icon-list {
+  mask-image: url("../img/list.png");
+}
+
+.icon-gallery {
+  mask-image: url("../img/gallery.png");
+}
+
+.icon-trash {
+  mask-image: url("../img/trash.png");
+}
+
+.icon-paste {
+  mask-image: url("../img/paste.png");
+}
+
+.icon-chevron {
+  mask-image: url("../img/chevron.png");
+}
+
+.icon-reset {
+  mask-image: url("../img/reset.png");
+}
+
 .icon-button {
   display: inline-grid;
   place-items: center;
@@ -261,6 +427,21 @@ main {
 .icon-button:hover {
   color: var(--text);
   background-color: var(--surface-hover);
+}
+
+.icon-button-danger {
+  color: var(--red);
+}
+
+.icon-button-danger:hover {
+  color: var(--red);
+  border-color: var(--red);
+  background-color: var(--danger-hover);
+}
+
+.icon-button[aria-pressed="true"] {
+  border-color: var(--primary);
+  color: var(--text);
 }
 
 .icon-button .icon {
@@ -378,6 +559,8 @@ main {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    /* or endless animations like the glint would flicker */
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

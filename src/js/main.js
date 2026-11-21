@@ -1,10 +1,15 @@
 import { setupThemeToggle } from "./theme.js";
 import { setupNav } from "./nav.js";
 import { loadRooms, saveRooms } from "./storage.js";
-import { createRoom, startingRooms } from "./rooms.js";
-import { loadCommands, buildCommand } from "./command.js";
+import { createRoom, startingRooms, readRooms, encodeRoom } from "./rooms.js";
+import { loadCommands, buildCommand, kitFromCommands } from "./command.js";
 import { renderRooms, focusRoom, setStatus } from "./render.js";
-import { setupImport } from "./import.js";
+import { setupImport, openImport, ROOM_IMPORT } from "./import.js";
+import { renderRoom, setupViewer } from "./viewer.js";
+import { askConfirm } from "./confirm.js";
+import { setupExport, openExport } from "./export.js";
+import { setupInventory } from "./inventory.js";
+import { setupPlayers } from "./players.js";
 
 const state = loadRooms() ?? { rooms: startingRooms(), currentId: null };
 let commands = null;
@@ -17,7 +22,7 @@ const actions = {
         focusRoom(id);
     },
     getCommand(room){
-        return commands === null ? null : buildCommand(commands, room.kit);
+        return commands === null ? null : buildCommand(commands, room);
     },
 };
 
@@ -28,10 +33,21 @@ function update(){
     }
     saveRooms(state);
     renderRooms(state, actions);
+    renderRoom(currentRoom(), mcfunctionKit());
+}
+
+// The kit in the mcfunction, for rooms without their own
+function mcfunctionKit(){
+    return commands ? kitFromCommands(commands) : {};
+}
+
+function currentRoom(){
+    return state.rooms.find(room => room.id === state.currentId) ?? null;
 }
 
 function addRoom(){
-    const room = createRoom(state.rooms);
+    // New rooms start with an empty inventory
+    const room = createRoom(state.rooms, "New Room", "", {});
     state.rooms.push(room);
     state.currentId = room.id;
     setStatus("");
@@ -49,6 +65,15 @@ function restoreDefaults(){
     focusRoom(restored[0].id);
 }
 
+function deleteRoom(){
+    const index = state.rooms.findIndex(room => room.id === state.currentId);
+    state.rooms.splice(index, 1);
+    // The next room down opens, or the one above if it was the last
+    state.currentId = state.rooms[Math.min(index, state.rooms.length - 1)]?.id ?? null;
+    setStatus("");
+    update();
+}
+
 function addRooms(added){
     state.rooms.push(...added);
     state.currentId = added[0].id;
@@ -59,17 +84,51 @@ function addRooms(added){
 
 setupThemeToggle();
 setupNav();
-setupImport(state, addRooms);
+setupImport();
+setupExport();
+setupInventory();
+setupViewer({
+    renameRoom(name){
+        currentRoom().name = name;
+        update();
+    },
+    describeRoom(description){
+        currentRoom().description = description;
+        update();
+    },
+    ...setupPlayers(currentRoom, mcfunctionKit, update),
+});
 update();
 
 document.querySelector("#new-room").addEventListener("click", addRoom);
 document.querySelector("#restore-defaults").addEventListener("click", restoreDefaults);
+document.querySelector("#import-rooms").addEventListener("click", () => openImport({
+    ...ROOM_IMPORT,
+    read: text => readRooms(text, state.rooms),
+    done: addRooms,
+}));
+document.querySelector("#export-room").addEventListener("click", async () => {
+    const room = currentRoom();
+    openExport({
+        title: "Export Room",
+        message: "Copy room code or save as .txt",
+        code: await encodeRoom(room),
+        name: room.name,
+    });
+});
+document.querySelector("#delete-room").addEventListener("click", async () => {
+    if (await askConfirm(`Delete ${currentRoom().name}?`, "Delete", "Cancel", { danger: true, note: "This action cannot be taken back" })){
+        deleteRoom();
+    }
+});
 
 loadCommands()
     .then(loaded => {
         commands = loaded;
+        // Rooms without a kit show the mcfunction's own
+        update();
     })
     .catch(err => {
         console.error(err);
-        setStatus("Couldn't load the commands, so copying won't work.", true);
+        setStatus("Unable to load copy commands", true);
     });

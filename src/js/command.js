@@ -14,15 +14,31 @@ export async function loadCommands(){
 
 const KIT_LINE = "replaceitem entity @s ";
 
-// One line for Run Command on World Join, Ranked splits it on ";"
-// Kits replace the inventory lines
-export function buildCommand(commands, kit){
-    if (!kit){
-        return commands.join(";");
+export function kitFromCommands(commands){
+    const kit = {};
+    for (const line of commands){
+        const match = line.match(/^replaceitem entity @s (\S+) minecraft:([a-z0-9_]+)(\{.*\})?(?: (\d+))?$/);
+        if (match){
+            kit[match[1]] = match[3] ? { id: match[2], count: Number(match[4] ?? 1), nbt: match[3] } : { id: match[2], count: Number(match[4] ?? 1) };
+        }
     }
-    const start = commands.findIndex(line => line.startsWith(KIT_LINE));
-    const kept = commands.filter(line => !line.startsWith(KIT_LINE));
-    const kitLines = Object.entries(kit).map(([slot, item]) => `${KIT_LINE}${slot} minecraft:${item.id} ${item.count}`);
-    kept.splice(start === -1 ? kept.length : start, 0, ...kitLines);
+    return kit;
+}
+
+function kitLines(kit, prefix = ""){
+    return Object.entries(kit).map(([slot, item]) => `${prefix}${KIT_LINE}${slot} minecraft:${item.id}${item.nbt ?? ""} ${item.count}`);
+}
+
+// One line for Run Command on World Join, split with ";"
+export function buildCommand(commands, room){
+    const isKitLine = line => line.startsWith(KIT_LINE);
+    const start = commands.findIndex(isKitLine);
+    const defaultLines = room.kit ? kitLines(room.kit) : commands.filter(isKitLine);
+    const playerLines = room.players.filter(player => player.kit).flatMap(player => {
+        const onlyThem = `execute if entity @s[name=${player.name}] run `;
+        return [`${onlyThem}clear @s`, ...kitLines(player.kit, onlyThem)];
+    });
+    const kept = commands.filter(line => !isKitLine(line));
+    kept.splice(start === -1 ? kept.length : start, 0, ...defaultLines, ...playerLines);
     return kept.join(";");
 }

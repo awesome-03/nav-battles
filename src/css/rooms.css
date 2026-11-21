@@ -164,6 +164,608 @@
   color: var(--text-muted);
 }
 
+/* Room Viewer */
+.room-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--normal-gap);
+  min-width: 0;
+}
+
+.room-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem 1rem;
+}
+
+.room-fields {
+  flex: 1;
+  min-width: min(100%, 16rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.room-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.room-description {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+.room-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Players */
+/* A container, so the cards can switch to one column when the box gets narrow */
+.players {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  container-type: inline-size;
+}
+
+.players-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.players-head h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.view-buttons {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.view-buttons .icon-button {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+/* Gallery*/
+.player-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.player-card {
+  container-type: inline-size;
+}
+
+.player-open {
+  width: 100%;
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.player-open:hover {
+  border-color: var(--border);
+  background-color: var(--card-hover);
+}
+
+.player-card .player-open {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.player-card .inventory {
+  --slot: calc((100cqi - 1.5rem - 2px - 32px) / 11);
+}
+
+.player-card .item {
+  inset: calc(var(--slot) / 12);
+}
+
+.player-card .item-count {
+  font-size: max(0.7rem, var(--slot) * 0.33);
+}
+
+.player-card .player-name {
+  font-size: clamp(1rem, 3.6cqi, 1.15rem);
+}
+
+.player-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 1.75rem;
+  contain: inline-size;
+}
+
+.player-name {
+  min-width: 0;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-badges {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.badge {
+  --badge: var(--text-muted);
+  flex: none;
+  padding: 0.1rem 0.5rem;
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--badge) 20%, transparent);
+  color: color-mix(in srgb, var(--badge) 75%, var(--text));
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge-added {
+  --badge: var(--green);
+}
+
+.badge-removed {
+  --badge: var(--red);
+}
+
+.badge-changed {
+  --badge: var(--yellow);
+}
+
+/* List view */
+.player-cards.list {
+  display: grid;
+  grid-template-columns: fit-content(16.5rem) minmax(0, 1fr) auto;
+  gap: 0.4rem 1rem;
+}
+
+.player-row,
+.player-row .player-open {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+
+.player-row .player-open {
+  padding: 0.5rem 0.75rem;
+}
+
+.player-row .player-badges {
+  max-width: 15rem;
+  margin-left: 0;
+}
+
+.player-items {
+  --slot: 1.625rem;
+  display: flex;
+  gap: 2px;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent);
+}
+
+.player-items .slot {
+  flex: none;
+}
+
+.players-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Inventory Slots */
+.inventory {
+  --slot: 1.75rem;
+  display: grid;
+  grid-template-columns: var(--slot) 4px var(--slot) 4px repeat(9, var(--slot));
+  grid-template-rows: repeat(3, var(--slot)) 4px var(--slot);
+  gap: 2px;
+}
+
+.slot {
+  position: relative;
+  width: var(--slot);
+  height: var(--slot);
+  padding: 0;
+  border: 1px solid var(--border-muted);
+  border-radius: 4px;
+  background-color: var(--slot-bg);
+  color: inherit;
+}
+
+.item {
+  position: absolute;
+  inset: 1px;
+  background-image: url("../img/items.webp");
+  background-size: 3200% auto;
+  background-position: var(--icon-position);
+}
+
+/* Enchant glint */
+.item.glint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../img/glint.png");
+  background-size: 2rem 2rem;
+  mask-image: url("../img/items.webp");
+  mask-size: 3200% auto;
+  mask-position: var(--icon-position);
+  mix-blend-mode: screen;
+  mix-blend-mode: plus-lighter;
+  opacity: 0.4;
+  animation: glint 4s linear infinite;
+}
+
+.item.potion {
+  background-image: url("../img/potions.webp");
+  background-size: 4200% auto;
+}
+
+.item.potion.glint::after {
+  mask-image: url("../img/potions.webp");
+  mask-size: 4200% auto;
+  opacity: 0.25;
+}
+
+@keyframes glint {
+  to { background-position: 2rem 2rem; }
+}
+
+.item-count {
+  position: absolute;
+  right: 1px;
+  bottom: -2px;
+  color: hsl(0 0% 100%);
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  -webkit-text-stroke: 3px hsl(0 0% 12%);
+  paint-order: stroke fill;
+}
+
+:root[data-theme="dark"] .item.dark {
+  filter: drop-shadow(0 0 1px hsl(0 0% 100% / 0.45));
+}
+
+/* Inventory Modal */
+.kit-modal {
+  width: min-content;
+  max-width: calc(100% - 2rem);
+}
+
+.kit-modal .modal-box {
+  gap: 0.65rem;
+}
+
+.kit-modal:focus-visible {
+  outline: none;
+}
+
+.kit-modal .modal-header {
+  align-items: flex-start;
+}
+
+.kit-heading {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.kit-room {
+  margin-bottom: 0.3rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.kit-modal h2 {
+  display: flex;
+  font-size: 1.4rem;
+}
+
+.kit-note {
+  align-self: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.kit-grid {
+  display: flex;
+  justify-content: center;
+  user-select: none;
+}
+
+.kit-grid .inventory {
+  --slot: 2.625rem;
+  gap: 3px;
+}
+
+.kit-grid .slot {
+  cursor: pointer;
+  touch-action: none;
+  transition: border-color 0.15s, background-color 0.15s, opacity 0.15s;
+}
+
+.kit-grid .slot:hover {
+  border-color: var(--border);
+  background-color: var(--slot-hover);
+}
+
+.kit-grid .item {
+  inset: 4px;
+}
+
+.kit-grid .item-count {
+  right: 3px;
+  bottom: 0;
+  font-size: 0.85rem;
+}
+
+.kit-grid.dragging .slot {
+  border-color: var(--border);
+  cursor: grabbing;
+}
+
+.kit-grid .slot.drop-blocked {
+  opacity: 0.35;
+}
+
+.kit-grid .slot.drag-over {
+  border-color: var(--primary);
+  background-color: var(--primary-tint);
+}
+
+.kit-grid .slot.drag-source > * {
+  opacity: 0.25;
+}
+
+.kit-grid .slot.moving {
+  z-index: 1;
+}
+
+.drag-ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px hsl(0 0% 0% / 0.45));
+}
+
+.drag-ghost .item {
+  inset: 4px;
+}
+
+.drag-ghost .item-count {
+  right: 3px;
+  bottom: 0;
+  font-size: 0.85rem;
+}
+
+.kit-modal .modal-buttons {
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  margin-top: 0;
+}
+
+.kit-tools {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.kit-tools:not(:has(> :not([hidden]))) {
+  display: none;
+}
+
+.kit-tools .trash-target {
+  border-style: dashed;
+}
+
+.kit-tools .trash-target.trash-over {
+  border-style: solid;
+  background-color: var(--red);
+  color: hsl(0 0% 100%);
+}
+
+.kit-save {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+/* Item Picker */
+.picker-modal {
+  width: min(33rem, 100% - 2rem);
+}
+
+.picker-modal .modal-buttons {
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+.picker-modal .modal-buttons > .button-primary {
+  margin-left: auto;
+}
+
+
+.picker-group-name {
+  padding-block: 0.15rem 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.picker-group-items {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 3rem));
+  justify-content: space-between;
+  gap: 3px;
+}
+
+#picker-nbt-toggle[aria-pressed="true"] {
+  border-color: var(--primary);
+  background-color: var(--primary-tint);
+}
+
+.picker-nbt {
+  flex: 1;
+  min-width: 0;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.picker-fields {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.picker-count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.stepper {
+  position: relative;
+}
+
+.stepper .text-field {
+  width: 5rem;
+  padding-right: 1.75rem;
+  appearance: textfield;
+}
+
+.stepper .text-field::-webkit-inner-spin-button,
+.stepper .text-field::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.stepper-buttons {
+  position: absolute;
+  inset: 1px 1px 1px auto;
+  display: flex;
+  flex-direction: column;
+  width: 1.5rem;
+  border-left: 1px solid var(--border-muted);
+}
+
+.stepper-buttons button {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.stepper-buttons button:first-child {
+  border-top-right-radius: 7px;
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.stepper-buttons button:last-child {
+  border-bottom-right-radius: 7px;
+}
+
+.stepper-buttons button:hover:not(:disabled) {
+  color: var(--text);
+  background-color: var(--surface-hover);
+}
+
+.stepper-buttons button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.stepper-buttons .icon {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+#count-down .icon {
+  transform: rotate(180deg);
+}
+
+.picker-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.picker-tab {
+  padding-inline: 3px;
+}
+
+.picker-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: min(22rem, 50dvh);
+  overflow-y: auto;
+  padding: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.picker-item {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid var(--border-muted);
+  border-radius: 4px;
+  background-color: var(--slot-bg);
+  cursor: pointer;
+}
+
+.picker-item:hover {
+  border-color: var(--border);
+  background-color: var(--slot-hover);
+}
+
+.picker-item[aria-selected="true"] {
+  border-color: var(--primary);
+  background-color: var(--primary-tint);
+}
+
+.picker-item .item {
+  inset: 4px;
+}
+
 @media (max-width: 1100px) {
   .rooms-page {
     grid-template-columns: 300px minmax(0, 1fr);
@@ -171,7 +773,6 @@
 }
 
 @media (max-width: 760px) {
-  /* The rooms go on top and stop sticking, with their own scroll */
   .rooms-page {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -184,5 +785,54 @@
 
   .no-rooms {
     padding-block: 3rem;
+  }
+}
+
+@container (max-width: 34rem) {
+  .player-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .kit-modal {
+    width: calc(100% - 2rem);
+  }
+
+  .kit-modal .modal-box {
+    padding: 1rem;
+  }
+
+  .kit-modal .modal-buttons,
+  .kit-tools {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .kit-modal .modal-buttons .button {
+    padding-inline: 0.7rem;
+  }
+
+  .kit-grid .inventory {
+    --slot: min(1.6rem, (100vw - 4rem - 34px) / 11);
+    gap: 2px;
+  }
+
+  .kit-grid .item,
+  .drag-ghost .item {
+    inset: 2px;
+  }
+
+  .kit-grid .item-count,
+  .drag-ghost .item-count {
+    font-size: 0.7rem;
+  }
+
+  .player-cards.list {
+    grid-template-columns: fit-content(50%) minmax(0, 1fr);
+  }
+
+  .player-items {
+    display: none;
   }
 }
