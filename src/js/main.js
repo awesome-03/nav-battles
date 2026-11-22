@@ -2,7 +2,7 @@ import { setupThemeToggle } from "./theme.js";
 import { setupNav } from "./nav.js";
 import { loadRooms, saveRooms } from "./storage.js";
 import { createRoom, startingRooms, readRooms, encodeRoom } from "./rooms.js";
-import { loadCommands, buildCommand } from "./command.js";
+import { loadCommands, buildCommand, onOptimized } from "./command.js";
 import { renderRooms, focusRoom, setStatus } from "./render.js";
 import { setupImport, openImport, ROOM_IMPORT } from "./import.js";
 import { renderRoom, setupViewer } from "./viewer.js";
@@ -85,6 +85,10 @@ setupImport();
 setupExport();
 setupInventory();
 setupLength();
+onOptimized(() => {
+    renderRooms(state, actions);
+    renderLength(currentRoom(), commands);
+});
 setupViewer({
     renameRoom(name){
         currentRoom().name = name;

@@ -77,20 +77,23 @@ function badgesWidth(badges){
     return badges.lastElementChild.getBoundingClientRect().right - badges.firstElementChild.getBoundingClientRect().left;
 }
 
-function fitBadges(element){
-    const name = element.querySelector(".player-name");
-    const badges = element.querySelector(".player-badges");
-    const count = badges.querySelectorAll(".badge-added, .badge-removed").length;
-    if (count === 0){
-        return;
-    }
-    const width = badgesWidth(badges);
-    if (name.scrollWidth > name.clientWidth || width > badges.clientWidth + 0.5){
-        const changes = [...badges.children];
-        badges.replaceChildren(summaryBadge(count));
-        if (badgesWidth(badges) >= width){
-            badges.replaceChildren(...changes);
+function fitBadges(elements){
+    const tight = elements.map(element => {
+        const name = element.querySelector(".player-name");
+        const badges = element.querySelector(".player-badges");
+        const count = badges.querySelectorAll(".badge-added, .badge-removed").length;
+        if (count === 0){
+            return null;
         }
+        const width = badgesWidth(badges);
+        return name.scrollWidth > name.clientWidth || width > badges.clientWidth + 0.5 ? { badges, count, width, changes: [...badges.children] } : null;
+    }).filter(Boolean);
+    for (const fit of tight){
+        fit.badges.replaceChildren(summaryBadge(fit.count));
+    }
+    const wider = tight.filter(fit => badgesWidth(fit.badges) >= fit.width);
+    for (const fit of wider){
+        fit.badges.replaceChildren(...fit.changes);
     }
 }
 
@@ -131,7 +134,7 @@ function renderPlayers(){
     galleryButton.setAttribute("aria-pressed", view === "gallery");
     const elements = playerList().map(view === "list" ? buildRow : buildCard);
     playerCards.replaceChildren(...elements);
-    elements.forEach(fitBadges);
+    fitBadges(elements);
 }
 
 export function renderRoom(room){

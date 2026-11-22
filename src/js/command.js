@@ -531,6 +531,45 @@ function playerSection(defaultKit, players, give){
 
 const builtRooms = new WeakMap();
 
+let worker = null;
+let working = null;
+const waiting = new Map();
+let optimized = () => {};
+
+export function onOptimized(callback){
+    optimized = callback;
+}
+
+function shorter(a, b){
+    return joined(b).length < joined(a).length ? b : a;
+}
+
+function nextSearch(){
+    if (working || waiting.size === 0){
+        return;
+    }
+    const [key, job] = waiting.entries().next().value;
+    waiting.delete(key);
+    working = job;
+    if (!worker){
+        worker = new Worker(new URL("./optimizer.js", import.meta.url), { type: "module" });
+        worker.addEventListener("message", ({ data }) => {
+            const { built, id } = working;
+            working = null;
+            if (built.has(id)){
+                built.set(id, shorter(built.get(id), data));
+                optimized();
+            }
+            nextSearch();
+        });
+        worker.addEventListener("error", () => {
+            working = null;
+            nextSearch();
+        });
+    }
+    worker.postMessage({ commands: job.commands, room: job.room });
+}
+
 export function commandParts(commands, room){
     if (!builtRooms.has(commands)){
         builtRooms.set(commands, new Map());
@@ -541,7 +580,16 @@ export function commandParts(commands, room){
         if (built.size > 200){
             built.clear();
         }
-        built.set(id, buildParts(commands, room));
+        const quick = quickParts(commands, room);
+        built.set(id, quick);
+        if (joined(quick).length > HARD_FROM){
+            if (typeof Worker === "undefined"){
+                built.set(id, shorter(quick, fullParts(commands, room)));
+            } else {
+                waiting.set(room.id ?? id, { built, id, commands, room: { kit: room.kit ?? null, players: room.players } });
+                nextSearch();
+            }
+        }
     }
     return built.get(id);
 }
@@ -555,25 +603,24 @@ function roomPlayers(room){
     return room.players.filter(player => last.get(player.name.toLowerCase()) === player && player.kit);
 }
 
-function buildParts(commands, room){
+function partsWith(commands, room, give){
     const at = commands.indexOf(CLEAR_LINE) + 1;
     const defaultKit = room.kit ?? {};
-    const players = roomPlayers(room);
-    const parts = give => {
-        const own = inventoryLines({}, defaultKit, 0, { give });
-        return {
-            before: commands.slice(0, at),
-            defaultLines: [...own.pre, ...own.gives, ...own.post],
-            players: playerSection(defaultKit, players, give),
-            after: commands.slice(at),
-        };
+    const own = inventoryLines({}, defaultKit, 0, { give });
+    return {
+        before: commands.slice(0, at),
+        defaultLines: [...own.pre, ...own.gives, ...own.post],
+        players: playerSection(defaultKit, roomPlayers(room), give),
+        after: commands.slice(at),
     };
-    const fast = parts(false);
-    if (joined(fast).length <= HARD_FROM){
-        return fast;
-    }
-    const hard = parts(true);
-    return joined(hard).length < joined(fast).length ? hard : fast;
+}
+
+function quickParts(commands, room){
+    return partsWith(commands, room, false);
+}
+
+export function fullParts(commands, room){
+    return partsWith(commands, room, true);
 }
 
 export function buildCommand(commands, room){
