@@ -107,6 +107,17 @@ main {
   background-color: var(--surface);
 }
 
+/* Stats Page */
+.stats-page {
+  padding-top: 18vh;
+}
+
+.stats-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  text-align: center;
+}
+
 /* Buttons */
 .button {
   display: inline-flex;

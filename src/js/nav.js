@@ -1,8 +1,12 @@
 const links = document.querySelectorAll(".site-nav a");
+const pages = document.querySelectorAll("main[data-page]");
 
-// Marks the link for the page as the selected one
-function markCurrentPage(){
-    const hash = location.hash || "#rooms";
+function showPage(){
+    const names = [...pages].map(page => `#${page.dataset.page}`);
+    const hash = names.includes(location.hash) ? location.hash : "#rooms";
+    for (const page of pages){
+        page.hidden = `#${page.dataset.page}` !== hash;
+    }
     for (const link of links){
         if (link.hash === hash){
             link.setAttribute("aria-current", "page");
@@ -13,6 +17,6 @@ function markCurrentPage(){
 }
 
 export function setupNav(){
-    markCurrentPage();
-    window.addEventListener("hashchange", markCurrentPage);
+    showPage();
+    window.addEventListener("hashchange", showPage);
 }

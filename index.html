@@ -41,7 +41,6 @@
       <ul>
         <li><a href="#rooms" aria-current="page">Rooms</a></li>
         <li><a href="#stats">Stats</a></li>
-        <li><a href="#tools">Tools</a></li>
       </ul>
     </nav>
     <button id="theme-toggle" class="theme-toggle icon-button" type="button">
@@ -49,7 +48,7 @@
     </button>
   </header>
 
-  <main class="rooms-page">
+  <main class="rooms-page" data-page="rooms">
     <!-- Rooms sidebar -->
     <section class="room-list bg-box" aria-labelledby="room-list-title">
       <h2 id="room-list-title">Rooms</h2>
@@ -155,6 +154,10 @@
         </div>
       </section>
     </section>
+  </main>
+
+  <main class="stats-page" data-page="stats" hidden>
+    <h1 class="stats-title">Work In Progress...</h1>
   </main>
 
   <!-- Import modal -->
